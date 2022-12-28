@@ -11,9 +11,10 @@ setuptools.setup(
     description="Feature Selection with Genetic Algorithm",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="package URL",
+    url="https://github.com/alisharifi2000/GeneticAlgorithmFeatureSelection",
     project_urls={
-        "Bug Tracker": "package issues URL",
+        "Bug Tracker": "https://github.com/alisharifi2000/GeneticAlgorithmFeatureSelection/issues",
+        "repository": "https://github.com/alisharifi2000/GeneticAlgorithmFeatureSelection"
     },
     classifiers=[
         "Programming Language :: Python :: 3",
