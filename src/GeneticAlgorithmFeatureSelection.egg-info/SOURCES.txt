@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+setup.py
+src/GeneticAlgorithmFeatureSelection.egg-info/PKG-INFO
+src/GeneticAlgorithmFeatureSelection.egg-info/SOURCES.txt
+src/GeneticAlgorithmFeatureSelection.egg-info/dependency_links.txt
+src/GeneticAlgorithmFeatureSelection.egg-info/top_level.txt
+src/genetic_algoirthm/GA.py
+src/genetic_algoirthm/__init__.py

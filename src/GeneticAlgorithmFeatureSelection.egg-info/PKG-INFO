@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: GeneticAlgorithmFeatureSelection
+Version: 0.0.1
+Summary: Feature Selection with Genetic Algorithm
+Home-page: https://github.com/alisharifi2000/GeneticAlgorithmFeatureSelection
+Author: Ali Sharifi
+Author-email: alisharifisearch@gmail.com
+Project-URL: Bug Tracker, https://github.com/alisharifi2000/GeneticAlgorithmFeatureSelection/issues
+Project-URL: repository, https://github.com/alisharifi2000/GeneticAlgorithmFeatureSelection
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# GeneticAlgorithmFeatureSelection
+Feature Selection with Genetic Algorithm
