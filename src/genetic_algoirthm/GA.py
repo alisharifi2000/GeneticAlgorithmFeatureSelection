@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import random
 from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 import time
@@ -14,6 +15,21 @@ class GenticAlgorithmFeatureSelection:
     def __init__(self, features, target, population_size=20, tourn_size=10, mut_rate=0.1, elite_rate=0.4,
                  no_generation=30, fitness_alpha=0.5, method='SVM',
                  method_params={'kernel': 'linear', 'random_state': 42}, k_folds=5, n_job=-1):
+        '''
+
+        :param features:
+        :param target:
+        :param population_size:
+        :param tourn_size:
+        :param mut_rate:
+        :param elite_rate:
+        :param no_generation:
+        :param fitness_alpha:
+        :param method:
+        :param method_params:
+        :param k_folds:
+        :param n_job:
+        '''
 
         self.population_size = population_size
         self.tourn_size = tourn_size
@@ -39,31 +55,62 @@ class GenticAlgorithmFeatureSelection:
         self.population = self.intital_population()
 
     def intital_population(self):
-        # build initial population
+        """
+        build initial population
+        :return: list of numpy array each of element represent as chromosome
+        """
+
         init_population = [np.ones(shape=self.no_total_features, dtype=bool)]
         population = [self.generate_population() for i in range(self.population_size - 1)]
         population.extend(init_population)
         return population
 
     def generate_population(self):
-        # generate element of population
+        """
+        generate chromosome of population
+        :return: chromosome represent existance of feature in featues list
+        """
+
         pop = np.random.randint(2, size=self.no_total_features, dtype=bool)
         return pop
 
     def build_model(self):
-        # build models by configuration
+        """
+        build models by configuration
+        :return: sklearn models by configuration
+        """
+
         if self.method == 'SVM':
             model = SVC(**self.method_params)
             return model
 
+        elif self.method == 'DesicionTree':
+            pass
+
+        elif self.method == 'LogesticRegression':
+            pass
+
+        elif self.method == 'KNN':
+            model = KNeighborsClassifier(**self.method_params)
+            return model
+
     def fitness_regularization(self, individual):
-        # regularization term for fitness score
+        """
+        regularization term for fitness score
+        :param individual: one chromosome
+        :return: regularization score. percentage of feature not exist in feature list
+        """
+
         count = sum(individual)
-        regualrization_score = (1 - (count / self.no_total_features))
-        return regualrization_score
+        regularization_score = (1 - (count / self.no_total_features))
+        return regularization_score
 
     def fitness_method_accuaracy(self, individual):
-        # accuracy term for fitness score
+        """
+        accuracy term for fitness score
+        :param individual: one chromosome
+        :return: accuracy of model for chromosome
+        """
         count = sum(individual)
         if count > 0:
             selected_featurs = self.feature_names[individual]
@@ -82,13 +129,22 @@ class GenticAlgorithmFeatureSelection:
         return method_score
 
     def fitness_function(self, individual):
+        """
+        fitness function for chromosome
+        :param individual: one chromosome
+        :return: fitness score of chromosome
+        """
         method_score = self.fitness_method_accuaracy(individual)
-        regualrization_score = self.fitness_regularization(individual)
+        regularization_score = self.fitness_regularization(individual)
 
-        score = ((self.fitness_alpha * method_score) + ((1 - self.fitness_alpha) * regualrization_score))
+        score = ((self.fitness_alpha * method_score) + ((1 - self.fitness_alpha) * regularization_score))
         return score
 
     def fitness_population(self):
+        """
+        find fitness score for chromosomes in population
+        :return: list of fitness score of population
+        """
         fitness_scores = [self.fitness_function(individual) for individual in self.population]
 
         individual_fitness_scores = pd.Series(fitness_scores)
@@ -96,13 +152,22 @@ class GenticAlgorithmFeatureSelection:
         return individual_fitness_scores
 
     def find_elites(self):
+        """
+        find elite members
+        :return: list of elite chromosomes
+        """
         individual_fitness_scores = self.fitness_population()
         elites_index = individual_fitness_scores.index[:self.elite_pop]
         elites = [self.population[index] for index in elites_index]
         return elites
 
     def crossover(self, parents1, parents2):
-        # one point crossover
+        """
+        one point crossover
+        :param parents1: chromosome as paraent1
+        :param parents2: chromosome as paraent2
+        :return: two children by one point crossover
+        """
         index = random.randint(1, self.no_total_features - 1)
 
         child1_left_part = np.array(parents1[:index])
@@ -120,13 +185,21 @@ class GenticAlgorithmFeatureSelection:
         return [child1, child2]
 
     def maturation(self, child):
+        """
+        maturation one chromosome by mut_rate
+        :param child: chromosome
+        :return: maturation one chromosome
+        """
         r = random.random()
         if r <= self.mut_rate:
             child = ~ child
-
         return child
 
     def selection(self):
+        """
+
+        :return:
+        """
         tourns = random.sample(self.population, self.tourn_size)
 
         score = [self.fitness_function(individual=torun) for torun in tourns]
@@ -138,12 +211,21 @@ class GenticAlgorithmFeatureSelection:
         return best_tourn
 
     def make_child(self):
+        """
+
+        :return:
+        """
         parent1 = self.selection()
         parent2 = self.selection()
 
         return self.crossover(parent1, parent2)
 
     def make_new_generation(self, verbose):
+        """
+
+        :param verbose:
+        :return:
+        """
         s_time = time.time()
         self.generation += 1
         elites = self.find_elites()
@@ -166,6 +248,11 @@ class GenticAlgorithmFeatureSelection:
             print(f'run_time for generation : {run_time}')
 
     def find_best_result_population(self, verbose):
+        """
+
+        :param verbose:
+        :return:
+        """
         scores = self.fitness_population()
         index = scores.index[0]
 
@@ -184,6 +271,11 @@ class GenticAlgorithmFeatureSelection:
             print('---------------------------------------------------------------------')
 
     def run(self, verbose=True):
+        """
+
+        :param verbose:
+        :return:
+        """
         # initial generation
         self.find_best_result_population(verbose)
 
