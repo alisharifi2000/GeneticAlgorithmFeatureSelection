@@ -17,18 +17,18 @@ class GenticAlgorithmFeatureSelection:
                  method_params={'kernel': 'linear', 'random_state': 42}, k_folds=5, n_job=-1):
         '''
 
-        :param features:
-        :param target:
-        :param population_size:
-        :param tourn_size:
-        :param mut_rate:
-        :param elite_rate:
-        :param no_generation:
-        :param fitness_alpha:
-        :param method:
-        :param method_params:
-        :param k_folds:
-        :param n_job:
+        :param features: pandas dataframe of all features
+        :param target: pandas dataframe of classification labels
+        :param population_size: size of population (default 20)
+        :param tourn_size: size of selected choromosom for tournoment as paraents (default 10)
+        :param mut_rate: rate of maturation (default 0.1)
+        :param elite_rate: rate of elite transfer to next generation (default 0.4)
+        :param no_generation: number of generation (default 30)
+        :param fitness_alpha: parameter for trade of between regularization term and accuracy term (default 0.5)
+        :param method: name of classification method (default SVM)
+        :param method_params: parameters of classification method
+        :param k_folds: number of k-fold cross validtion (default 5)
+        :param n_job: number of jobs
         '''
 
         self.population_size = population_size
@@ -197,8 +197,8 @@ class GenticAlgorithmFeatureSelection:
 
     def selection(self):
         """
-
-        :return:
+        find best chromosome in tournment for being parent
+        :return: best chromosome in tournment for being parent
         """
         tourns = random.sample(self.population, self.tourn_size)
 
@@ -212,8 +212,8 @@ class GenticAlgorithmFeatureSelection:
 
     def make_child(self):
         """
-
-        :return:
+        build two child from two parants by one point crossover
+        :return: list of two child
         """
         parent1 = self.selection()
         parent2 = self.selection()
@@ -222,9 +222,8 @@ class GenticAlgorithmFeatureSelection:
 
     def make_new_generation(self, verbose):
         """
-
-        :param verbose:
-        :return:
+        build new generation and find best feature set by generation
+        :param verbose: status that show result of each generation (default True)
         """
         s_time = time.time()
         self.generation += 1
@@ -249,9 +248,8 @@ class GenticAlgorithmFeatureSelection:
 
     def find_best_result_population(self, verbose):
         """
-
+        find best result of generation and set feature set
         :param verbose:
-        :return:
         """
         scores = self.fitness_population()
         index = scores.index[0]
