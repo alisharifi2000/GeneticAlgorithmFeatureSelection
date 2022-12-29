@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="GeneticAlgorithmFeatureSelection",
-    version="0.0.1",
+    version="0.0.2",
     author="Ali Sharifi",
     author_email="alisharifisearch@gmail.com",
     description="Feature Selection with Genetic Algorithm",
