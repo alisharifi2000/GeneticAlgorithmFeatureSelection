@@ -1,3 +1,0 @@
-[build-system]
-requires = ['setuptools', 'wheel', 'pandas', 'numpy', 'sklearn']
-build-backend = 'setuptools.build_meta'
