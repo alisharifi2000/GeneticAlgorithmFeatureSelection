@@ -14,7 +14,8 @@ The original example code can be found in [test.py](https://github.com/alisharif
     
 Define the sample classification dataset
     
-    x, y = make_classification(n_features=25, n_samples=1500, n_classes=4, n_clusters_per_class=3, n_informative=4)
+    x, y = make_classification(n_features=25, n_samples=1500, n_classes=4, n_clusters_per_class=3,
+                               n_informative=4)
 
 input data must be pandas dataframe. we split target and features.
     
@@ -24,8 +25,9 @@ input data must be pandas dataframe. we split target and features.
     
 run feature selection
 
-     FS = FeatureSelection(features=features, target=target, population_size=1000, elite_rate=0.25, mut_rate=0.2, k_folds=4,
-                      fitness_alpha=0.85, tourn_size=30, no_generation=120, method='DesicionTree', scoring='accuracy')
+     FS = FeatureSelection(features=features, target=target, population_size=1000, elite_rate=0.25,
+                           mut_rate=0.2, k_folds=4, fitness_alpha=0.85, tourn_size=30,
+                           no_generation=120, method='DesicionTree', scoring='accuracy')
      FS.run()
      
 see history 
