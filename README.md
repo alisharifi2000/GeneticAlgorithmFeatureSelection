@@ -2,7 +2,7 @@
 Feature Selection with Genetic Algorithm published in [pypi](https://pypi.org/project/GeneticAlgorithmFeatureSelection/).
 
 #### Installation
-    pip install GeneticAlgorithmFeatureSelection
+    from GeneticAlgorithmFeaturesSelection.GA import FeatureSelection
     
 #### Example
 
@@ -24,14 +24,14 @@ input data must be pandas dataframe. we split target and features.
     
 run feature selection
 
-     GA = GenticAlgorithmFeatureSelection(features=features, target=target, population_size=100, elite_rate=0.5,
-                                          fitness_alpha=0.55, tourn_size=25, no_generation=50)
+     FS = FeatureSelection(features=features, target=target, population_size=100, elite_rate=0.5,
+                      fitness_alpha=0.55, tourn_size=25, no_generation=50)
      
-     GA.run()
+     FS.run()
      
 see history 
      
-    history = GA.history
+    history = FS.history
 
     for generation, detail in history.items():
         print(f'Generation :{generation}')
