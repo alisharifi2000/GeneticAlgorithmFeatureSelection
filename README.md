@@ -14,19 +14,18 @@ The original example code can be found in [test.py](https://github.com/alisharif
     
 Define the sample classification dataset
     
-    x, y = make_classification(n_features=100, n_samples=2500)
+    x, y = make_classification(n_features=25, n_samples=1500, n_classes=4, n_clusters_per_class=3, n_informative=4)
 
 input data must be pandas dataframe. we split target and features.
     
-    columns = [f'f_{i}' for i in range(1, 101)]
+    columns = [f'f_{i}' for i in range(1, 26)]
     features = pd.DataFrame(x, columns=columns)
     target = pd.DataFrame(y, columns=['target'])
     
 run feature selection
 
-     FS = FeatureSelection(features=features, target=target, population_size=100, elite_rate=0.5,
-                      fitness_alpha=0.55, tourn_size=25, no_generation=50)
-     
+     FS = FeatureSelection(features=features, target=target, population_size=1000, elite_rate=0.25, mut_rate=0.2, k_folds=4,
+                      fitness_alpha=0.85, tourn_size=30, no_generation=120, method='DesicionTree', scoring='accuracy')
      FS.run()
      
 see history 
