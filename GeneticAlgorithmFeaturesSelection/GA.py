@@ -12,22 +12,24 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 import time
 from tqdm import tqdm
+from multiprocessing import Pool, cpu_count
+import warnings
 # from xgboost import XGBClassifier
 
-
+warnings.filterwarnings('ignore')
 np.random.RandomState(seed=45)
 random.seed(45)
 
-#TODO: add logger
-#TODO: add XGboost, Lightgbm model
-#TODO: speedup find elites process
+
+# TODO: add logger
+# TODO: add XGboost, Lightgbm model
 
 
 class FeatureSelection:
     def __init__(self, features, target, population_size=20, tourn_size=10, mut_rate=0.1, elite_rate=0.5,
                  no_generation=30, fitness_alpha=0.5, method='SVM',
-                 method_params={}, k_folds=5, scoring='f1_score', n_job=-1):
-        '''
+                 method_params=None, k_folds=5, scoring='f1_score', n_job=-1):
+        """
 
         :param features: pandas dataframe of all features
         :param target: pandas dataframe of classification labels
@@ -41,8 +43,10 @@ class FeatureSelection:
         :param method_params: parameters of classification method
         :param k_folds: number of k-fold cross validtion (default 5)
         :param n_job: number of jobs
-        '''
+        """
 
+        if method_params is None:
+            method_params = {}
         self.population_size = population_size
         self.tourn_size = tourn_size
         self.mut_rate = mut_rate
@@ -224,7 +228,7 @@ class FeatureSelection:
         child2 = np.concatenate((child2_left_part, child2_right_part), axis=None)
         child2 = self.maturation(child2)
 
-        return [child1, child2]
+        return child1, child2
 
     def maturation(self, child):
         """
@@ -252,7 +256,7 @@ class FeatureSelection:
         best_tourn = tourns[index]
         return best_tourn
 
-    def make_child(self):
+    def make_child(self, _):
         """
         build two child from two parants by one point crossover
         :return: list of two child
@@ -271,11 +275,9 @@ class FeatureSelection:
         self.generation += 1
         elites = list(self.find_elites())
         no_make_child = int((self.population_size - self.elite_pop) / 2)
-        if verbose:
-            new_population = [self.make_child() for _ in tqdm(range(no_make_child), unit='iter make child')]
 
-        else:
-            new_population = [self.make_child() for _ in (range(no_make_child))]
+        with Pool(cpu_count() - 1) as p:
+            new_population = list(p.imap(self.make_child, range(no_make_child)))
 
         new_population = np.array(new_population)
         new_population = new_population.reshape(no_make_child * 2, self.no_total_features)
@@ -294,12 +296,16 @@ class FeatureSelection:
             run_time = time.time() - s_time
             print(f'run_time for generation : {run_time}')
 
-    def find_best_result_population(self, verbose):
+    def find_best_result_population(self, verbose, initial=False):
         """
         find best result of generation and set feature set
+        :param initial:
         :param verbose:
         """
-        self.fitness_population()
+
+        if initial:
+            self.fitness_population()
+
         index = self.population_fitnesses.index[0]
         best_score = self.population_fitnesses.values[index]
         best_individual = self.population[index]
@@ -326,7 +332,7 @@ class FeatureSelection:
         :return:
         """
         # initial generation
-        self.find_best_result_population(verbose)
+        self.find_best_result_population(verbose, initial=True)
 
         # generations
         if verbose:
@@ -336,4 +342,3 @@ class FeatureSelection:
         else:
             for _ in tqdm(range(self.no_generation), unit='generation'):
                 self.make_new_generation(verbose)
-
