@@ -11,17 +11,20 @@ from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 import time
+from tqdm import tqdm
+# from xgboost import XGBClassifier
+
 
 np.random.RandomState(seed=45)
 random.seed(45)
 
 #TODO: add logger
 #TODO: add XGboost, Lightgbm model
-#TODO: build requirement.txt
+#TODO: speedup find elites process
 
 
 class FeatureSelection:
-    def __init__(self, features, target, population_size=20, tourn_size=10, mut_rate=0.1, elite_rate=0.4,
+    def __init__(self, features, target, population_size=20, tourn_size=10, mut_rate=0.1, elite_rate=0.5,
                  no_generation=30, fitness_alpha=0.5, method='SVM',
                  method_params={}, k_folds=5, scoring='f1_score', n_job=-1):
         '''
@@ -61,8 +64,9 @@ class FeatureSelection:
         self.n_job = n_job
         self.generation = 0
         self.history = {}
-
+        self.no_feature_selected = self.features.shape[1]
         self.population = self.intital_population()
+        self.population_fitnesses = []
 
     def intital_population(self):
         """
@@ -71,8 +75,9 @@ class FeatureSelection:
         """
 
         init_population = [np.ones(shape=self.no_total_features, dtype=bool)]
-        population = [self.generate_population() for i in range(self.population_size - 1)]
+        population = [self.generate_population() for _ in range(self.population_size - 1)]
         population.extend(init_population)
+        population = np.array(population)
         return population
 
     def generate_population(self):
@@ -113,6 +118,10 @@ class FeatureSelection:
             elif self.method == 'RandomForest':
                 model = RandomForestClassifier(self.method_params)
                 return model
+
+            # elif self.method == 'XGBoost':
+            #     model = XGBClassifier(self.method_params)
+            #     return model
 
         except Exception as e:
             print(e)
@@ -182,19 +191,16 @@ class FeatureSelection:
 
         individual_fitness_scores = pd.Series(fitness_scores)
         individual_fitness_scores.sort_values(ascending=False, inplace=True)
-        return individual_fitness_scores
+        self.population_fitnesses = individual_fitness_scores
 
     def find_elites(self):
         """
         find elite members
         :return: list of elite chromosomes
         """
-        individual_fitness_scores = self.fitness_population()
-        individual_fitness_scores, self.population = zip(*sorted(zip(individual_fitness_scores,
-                                                                     self.population)))
-        elites = self.population[:self.elite_pop]
-#         elites_index = individual_fitness_scores.index[:self.elite_pop]
-#         elites = [self.population[index] for index in elites_index]
+        self.fitness_population()
+        elites_index = list(self.population_fitnesses.index[:self.elite_pop])
+        elites = self.population[elites_index]
         return elites
 
     def crossover(self, parents1, parents2):
@@ -236,7 +242,7 @@ class FeatureSelection:
         find best chromosome in tournment for being parent
         :return: best chromosome in tournment for being parent
         """
-        tourns = random.sample(self.population, self.tourn_size)
+        tourns = random.sample(list(self.population), self.tourn_size)
 
         score = [self.fitness_function(individual=torun) for torun in tourns]
         tourns_score = pd.Series(score)
@@ -263,9 +269,14 @@ class FeatureSelection:
         """
         s_time = time.time()
         self.generation += 1
-        elites = self.find_elites()
+        elites = list(self.find_elites())
         no_make_child = int((self.population_size - self.elite_pop) / 2)
-        new_population = [self.make_child() for i in range(no_make_child)]
+        if verbose:
+            new_population = [self.make_child() for _ in tqdm(range(no_make_child), unit='iter make child')]
+
+        else:
+            new_population = [self.make_child() for _ in (range(no_make_child))]
+
         new_population = np.array(new_population)
         new_population = new_population.reshape(no_make_child * 2, self.no_total_features)
         new_population = list(new_population)
@@ -275,6 +286,7 @@ class FeatureSelection:
             all_features = np.ones(shape=self.no_total_features, dtype=bool)
             new_population.append(all_features)
 
+        new_population = np.array(new_population)
         self.population = new_population
         self.find_best_result_population(verbose)
 
@@ -287,20 +299,23 @@ class FeatureSelection:
         find best result of generation and set feature set
         :param verbose:
         """
-        scores = self.fitness_population()
-        index = scores.index[0]
-
-        best_score = scores.values[0]
+        self.fitness_population()
+        index = self.population_fitnesses.index[0]
+        best_score = self.population_fitnesses.values[index]
         best_individual = self.population[index]
         selected_featurs = self.feature_names[best_individual]
+        no_selected_features = len(selected_featurs)
         self.selected_featues = selected_featurs
         self.best_score = best_score
-        self.history[self.generation] = {'best_score': best_score, 'selected_features': selected_featurs}
+        self.no_feature_selected = no_selected_features
+        self.history[self.generation] = {'best_score': best_score, 'no_selected_features': no_selected_features,
+                                         'selected_features': selected_featurs}
 
         if verbose:
             print('---------------------------------------------------------------------')
             print(f'generation :{self.generation} complete !')
             print(f'best score :{self.best_score}')
+            print(f'no selected features :{self.no_feature_selected}')
             print(f'best features:{self.selected_featues}')
             print('---------------------------------------------------------------------')
 
@@ -314,5 +329,11 @@ class FeatureSelection:
         self.find_best_result_population(verbose)
 
         # generations
-        for generation in range(self.no_generation):
-            self.make_new_generation(verbose)
+        if verbose:
+            for _ in range(self.no_generation):
+                self.make_new_generation(verbose)
+
+        else:
+            for _ in tqdm(range(self.no_generation), unit='generation'):
+                self.make_new_generation(verbose)
+
