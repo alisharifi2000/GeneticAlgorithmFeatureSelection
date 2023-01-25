@@ -190,8 +190,11 @@ class FeatureSelection:
         :return: list of elite chromosomes
         """
         individual_fitness_scores = self.fitness_population()
-        elites_index = individual_fitness_scores.index[:self.elite_pop]
-        elites = [self.population[index] for index in elites_index]
+        individual_fitness_scores, self.population = zip(*sorted(zip(individual_fitness_scores,
+                                                                     self.population)))
+        elites = self.population[:self.elite_pop]
+#         elites_index = individual_fitness_scores.index[:self.elite_pop]
+#         elites = [self.population[index] for index in elites_index]
         return elites
 
     def crossover(self, parents1, parents2):
