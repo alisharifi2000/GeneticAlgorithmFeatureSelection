@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeneticAlgorithmFeaturesSelection.GA &mdash; GeneticAlgorithmFeatureSelection 0.0.4 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GeneticAlgorithmFeatureSelection
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GeneticAlgorithmFeatureSelection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">GeneticAlgorithmFeaturesSelection.GA</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for GeneticAlgorithmFeaturesSelection.GA</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">make_scorer</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="c1"># from xgboost import XGBClassifier</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span>
+
+
+<span class="c1"># TODO: add logger</span>
+<span class="c1"># TODO: add XGboost, Lightgbm model</span>
+
+
+<div class="viewcode-block" id="FeatureSelection"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection">[docs]</a><span class="k">class</span> <span class="nc">FeatureSelection</span><span class="p">:</span>
+<div class="viewcode-block" id="FeatureSelection.__init__"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">population_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">tourn_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mut_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">elite_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                 <span class="n">no_generation</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">fitness_alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;SVM&#39;</span><span class="p">,</span>
+                 <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k_folds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;f1_score&#39;</span><span class="p">,</span> <span class="n">n_job</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param features: pandas dataframe of all features</span>
+<span class="sd">        :param target: pandas dataframe of classification labels</span>
+<span class="sd">        :param population_size: size of population (default 20)</span>
+<span class="sd">        :param tourn_size: size of selected choromosom for tournoment as paraents (default 10)</span>
+<span class="sd">        :param mut_rate: rate of maturation (default 0.1)</span>
+<span class="sd">        :param elite_rate: rate of elite transfer to next generation (default 0.4)</span>
+<span class="sd">        :param no_generation: number of generation (default 30)</span>
+<span class="sd">        :param fitness_alpha: parameter for trade-off between regularization term and accuracy term (default 0.5)</span>
+<span class="sd">        :param method: name of classification method (default SVM)</span>
+<span class="sd">        :param method_params: parameters of classification method</span>
+<span class="sd">        :param k_folds: number of k-fold cross validtion (default 5)</span>
+<span class="sd">        :param scoring: metric for performance methods (default f1-score)</span>
+<span class="sd">        :param n_job: number of jobs for classification method (defult -1)</span>
+<span class="sd">        :param n_processes: number of processor using for building next generation (default 1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">method_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">method_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_size</span> <span class="o">=</span> <span class="n">population_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tourn_size</span> <span class="o">=</span> <span class="n">tourn_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mut_rate</span> <span class="o">=</span> <span class="n">mut_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_generation</span> <span class="o">=</span> <span class="n">no_generation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitness_alpha</span> <span class="o">=</span> <span class="n">fitness_alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elite_rate</span> <span class="o">=</span> <span class="n">elite_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elite_pop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elite_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_params</span> <span class="o">=</span> <span class="n">method_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_featues</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_folds</span> <span class="o">=</span> <span class="n">k_folds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scoring</span> <span class="o">=</span> <span class="n">scoring</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_job</span> <span class="o">=</span> <span class="n">n_job</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_processes</span> <span class="o">=</span> <span class="n">n_processes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generation</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_feature_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intital_population</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_fitnesses</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.intital_population"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.intital_population">[docs]</a>    <span class="k">def</span> <span class="nf">intital_population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        build initial population</span>
+<span class="sd">        :return: list of numpy array each of element represent as chromosome</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">init_population</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)]</span>
+        <span class="n">population</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_population</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">population</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">init_population</span><span class="p">)</span>
+        <span class="n">population</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">population</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">population</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.generate_population"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.generate_population">[docs]</a>    <span class="k">def</span> <span class="nf">generate_population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate chromosome of population</span>
+<span class="sd">        :return: chromosome represent existance of feature in featues list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pop</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.build_model"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.build_model">[docs]</a>    <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        build models by configuration</span>
+<span class="sd">        :return: sklearn models by configuration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;SVM&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">method_params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;DesicionTree&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">method_params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;LogesticRegression&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">method_params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;KNN&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">method_params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;NavieBayes&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">GaussianNB</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">method_params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;RandomForest&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">method_params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
+
+            <span class="c1"># elif self.method == &#39;XGBoost&#39;:</span>
+            <span class="c1">#     model = XGBClassifier(self.method_params)</span>
+            <span class="c1">#     return model</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.fitness_regularization"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_regularization">[docs]</a>    <span class="k">def</span> <span class="nf">fitness_regularization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        regularization term for fitness score</span>
+<span class="sd">        :param individual: one chromosome</span>
+<span class="sd">        :return: regularization score. percentage of feature not exist in feature list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span>
+        <span class="n">regularization_score</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">count</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">regularization_score</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.make_score"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_score">[docs]</a>    <span class="k">def</span> <span class="nf">make_score</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoring</span> <span class="o">==</span> <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoring</span> <span class="o">==</span> <span class="s1">&#39;precision&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">precision_score</span><span class="p">),</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoring</span> <span class="o">==</span> <span class="s1">&#39;recall&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">recall_score</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoring</span> <span class="o">==</span> <span class="s1">&#39;f1_score&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">f1_score</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.fitness_method_accuaracy"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_method_accuaracy">[docs]</a>    <span class="k">def</span> <span class="nf">fitness_method_accuaracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        accuracy term for fitness score</span>
+<span class="sd">        :param individual: one chromosome</span>
+<span class="sd">        :return: accuracy of model for chromosome</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">selected_featurs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">individual</span><span class="p">]</span>
+            <span class="n">selected_feature_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">selected_featurs</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">()</span>
+            <span class="n">cv</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k_folds</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">selected_feature_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">make_score</span><span class="p">(),</span>
+                                     <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_job</span><span class="p">)</span>
+            <span class="n">method_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">method_score</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">method_score</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.fitness_function"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_function">[docs]</a>    <span class="k">def</span> <span class="nf">fitness_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        fitness function for chromosome</span>
+<span class="sd">        :param individual: one chromosome</span>
+<span class="sd">        :return: fitness score of chromosome</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitness_method_accuaracy</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span>
+        <span class="n">regularization_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitness_regularization</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span>
+
+        <span class="n">score</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_alpha</span> <span class="o">*</span> <span class="n">method_score</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitness_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">regularization_score</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">score</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.fitness_population"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_population">[docs]</a>    <span class="k">def</span> <span class="nf">fitness_population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find fitness score for chromosomes in population</span>
+<span class="sd">        :return: list of fitness score of population</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fitness_scores</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">]</span>
+
+        <span class="n">individual_fitness_scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">fitness_scores</span><span class="p">)</span>
+        <span class="n">individual_fitness_scores</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_fitnesses</span> <span class="o">=</span> <span class="n">individual_fitness_scores</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.find_elites"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_elites">[docs]</a>    <span class="k">def</span> <span class="nf">find_elites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find elite members</span>
+<span class="sd">        :return: list of elite chromosomes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitness_population</span><span class="p">()</span>
+        <span class="n">elites_index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population_fitnesses</span><span class="o">.</span><span class="n">index</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">elite_pop</span><span class="p">])</span>
+        <span class="n">elites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span><span class="n">elites_index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">elites</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.crossover"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.crossover">[docs]</a>    <span class="k">def</span> <span class="nf">crossover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents1</span><span class="p">,</span> <span class="n">parents2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        one point crossover</span>
+<span class="sd">        :param parents1: chromosome as paraent1</span>
+<span class="sd">        :param parents2: chromosome as paraent2</span>
+<span class="sd">        :return: two children by one point crossover</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">child1_left_part</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parents1</span><span class="p">[:</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">child1_right_part</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parents2</span><span class="p">[</span><span class="n">index</span><span class="p">:])</span>
+
+        <span class="n">child2_left_part</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parents2</span><span class="p">[:</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">child2_right_part</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parents1</span><span class="p">[</span><span class="n">index</span><span class="p">:])</span>
+
+        <span class="n">child1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">child1_left_part</span><span class="p">,</span> <span class="n">child1_right_part</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">child1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturation</span><span class="p">(</span><span class="n">child1</span><span class="p">)</span>
+
+        <span class="n">child2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">child2_left_part</span><span class="p">,</span> <span class="n">child2_right_part</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">child2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturation</span><span class="p">(</span><span class="n">child2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">child1</span><span class="p">,</span> <span class="n">child2</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.maturation"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.maturation">[docs]</a>    <span class="k">def</span> <span class="nf">maturation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        maturation one chromosome by mut_rate</span>
+<span class="sd">        :param child: chromosome</span>
+<span class="sd">        :return: maturation one chromosome</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mut_rate</span><span class="p">:</span>
+            <span class="n">child</span> <span class="o">=</span> <span class="o">~</span> <span class="n">child</span>
+        <span class="k">return</span> <span class="n">child</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.selection"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.selection">[docs]</a>    <span class="k">def</span> <span class="nf">selection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find best chromosome in tournment for being parent</span>
+<span class="sd">        :return: best chromosome in tournment for being parent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tourns</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">tourn_size</span><span class="p">)</span>
+
+        <span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="n">torun</span><span class="p">)</span> <span class="k">for</span> <span class="n">torun</span> <span class="ow">in</span> <span class="n">tourns</span><span class="p">]</span>
+        <span class="n">tourns_score</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        <span class="n">tourns_score</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="n">tourns_score</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">best_tourn</span> <span class="o">=</span> <span class="n">tourns</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">best_tourn</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.make_child"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_child">[docs]</a>    <span class="k">def</span> <span class="nf">make_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        build two child from two parants by one point crossover</span>
+<span class="sd">        :return: list of two child</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parent1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selection</span><span class="p">()</span>
+        <span class="n">parent2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selection</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span><span class="n">parent1</span><span class="p">,</span> <span class="n">parent2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.make_new_generation"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_new_generation">[docs]</a>    <span class="k">def</span> <span class="nf">make_new_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        build new generation and find best feature set by generation</span>
+<span class="sd">        :param verbose: status that show result of each generation (default True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generation</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">elites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_elites</span><span class="p">())</span>
+        <span class="n">no_make_child</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">population_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elite_pop</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processes</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+            <span class="n">new_population</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_child</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_make_child</span><span class="p">)))</span>
+
+        <span class="n">new_population</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_population</span><span class="p">)</span>
+        <span class="n">new_population</span> <span class="o">=</span> <span class="n">new_population</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">no_make_child</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span><span class="p">)</span>
+        <span class="n">new_population</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">new_population</span><span class="p">)</span>
+        <span class="n">new_population</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">elites</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_population</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_size</span><span class="p">:</span>
+            <span class="n">all_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">no_total_features</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">new_population</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_features</span><span class="p">)</span>
+
+        <span class="n">new_population</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_population</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="n">new_population</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_best_result_population</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">run_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">s_time</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;run_time for generation : </span><span class="si">{</span><span class="n">run_time</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.find_best_result_population"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_best_result_population">[docs]</a>    <span class="k">def</span> <span class="nf">find_best_result_population</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find best result of generation and set feature set</span>
+<span class="sd">        :param initial:</span>
+<span class="sd">        :param verbose:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">initial</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fitness_population</span><span class="p">()</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_fitnesses</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">best_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_fitnesses</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">best_individual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">selected_featurs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">best_individual</span><span class="p">]</span>
+        <span class="n">no_selected_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_featurs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_featues</span> <span class="o">=</span> <span class="n">selected_featurs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">=</span> <span class="n">best_score</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_feature_selected</span> <span class="o">=</span> <span class="n">no_selected_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">generation</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;best_score&#39;</span><span class="p">:</span> <span class="n">best_score</span><span class="p">,</span> <span class="s1">&#39;no_selected_features&#39;</span><span class="p">:</span> <span class="n">no_selected_features</span><span class="p">,</span>
+                                         <span class="s1">&#39;selected_features&#39;</span><span class="p">:</span> <span class="n">selected_featurs</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------------------------------------------------------------&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;generation :</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">generation</span><span class="si">}</span><span class="s1"> complete !&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;best score :</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_score</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;no selected features :</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">no_feature_selected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;best features:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_featues</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------------------------------------------------------------&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.run"><a class="viewcode-back" href="../../feature_selection.html#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        run process</span>
+<span class="sd">        :param verbose:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initial generation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_best_result_population</span><span class="p">(</span><span class="n">verbose</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># generations</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_generation</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">make_new_generation</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_generation</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;generation&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">make_new_generation</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ali Sharifi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

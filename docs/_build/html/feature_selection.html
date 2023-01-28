@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeneticAlgorithmFeaturesSelection package &mdash; GeneticAlgorithmFeatureSelection 0.0.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GeneticAlgorithmFeatureSelection
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">GeneticAlgorithmFeaturesSelection package</a><ul>
+<li><a class="reference internal" href="#module-contents">Module contents</a><ul>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection"><code class="docutils literal notranslate"><span class="pre">FeatureSelection</span></code></a><ul>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.__init__"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.intital_population"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.intital_population()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.generate_population"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.generate_population()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.build_model"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.build_model()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_regularization"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.fitness_regularization()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_score"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.make_score()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_method_accuaracy"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.fitness_method_accuaracy()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_function"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.fitness_function()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_population"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.fitness_population()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_elites"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.find_elites()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.crossover"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.crossover()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.maturation"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.maturation()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.selection"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.selection()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_child"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.make_child()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_new_generation"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.make_new_generation()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_best_result_population"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.find_best_result_population()</span></code></a></li>
+<li><a class="reference internal" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.run"><code class="docutils literal notranslate"><span class="pre">FeatureSelection.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GeneticAlgorithmFeatureSelection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">GeneticAlgorithmFeaturesSelection package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/feature_selection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="geneticalgorithmfeaturesselection-package">
+<h1>GeneticAlgorithmFeaturesSelection package<a class="headerlink" href="#geneticalgorithmfeaturesselection-package" title="Permalink to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<span class="target" id="module-GeneticAlgorithmFeaturesSelection.GA"></span><dl class="py class">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GeneticAlgorithmFeaturesSelection.GA.</span></span><span class="sig-name descname"><span class="pre">FeatureSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tourn_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mut_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elite_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SVM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_folds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'f1_score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tourn_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mut_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elite_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SVM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_folds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'f1_score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – pandas dataframe of all features</p></li>
+<li><p><strong>target</strong> – pandas dataframe of classification labels</p></li>
+<li><p><strong>population_size</strong> – size of population (default 20)</p></li>
+<li><p><strong>tourn_size</strong> – size of selected choromosom for tournoment as paraents (default 10)</p></li>
+<li><p><strong>mut_rate</strong> – rate of maturation (default 0.1)</p></li>
+<li><p><strong>elite_rate</strong> – rate of elite transfer to next generation (default 0.4)</p></li>
+<li><p><strong>no_generation</strong> – number of generation (default 30)</p></li>
+<li><p><strong>fitness_alpha</strong> – parameter for trade-off between regularization term and accuracy term (default 0.5)</p></li>
+<li><p><strong>method</strong> – name of classification method (default SVM)</p></li>
+<li><p><strong>method_params</strong> – parameters of classification method</p></li>
+<li><p><strong>k_folds</strong> – number of k-fold cross validtion (default 5)</p></li>
+<li><p><strong>scoring</strong> – metric for performance methods (default f1-score)</p></li>
+<li><p><strong>n_job</strong> – number of jobs for classification method (defult -1)</p></li>
+<li><p><strong>n_processes</strong> – number of processor using for building next generation (default 1)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.intital_population">
+<span class="sig-name descname"><span class="pre">intital_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.intital_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.intital_population" title="Permalink to this definition"></a></dt>
+<dd><p>build initial population
+:return: list of numpy array each of element represent as chromosome</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.generate_population">
+<span class="sig-name descname"><span class="pre">generate_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.generate_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.generate_population" title="Permalink to this definition"></a></dt>
+<dd><p>generate chromosome of population
+:return: chromosome represent existance of feature in featues list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.build_model">
+<span class="sig-name descname"><span class="pre">build_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.build_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.build_model" title="Permalink to this definition"></a></dt>
+<dd><p>build models by configuration
+:return: sklearn models by configuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_regularization">
+<span class="sig-name descname"><span class="pre">fitness_regularization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.fitness_regularization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_regularization" title="Permalink to this definition"></a></dt>
+<dd><p>regularization term for fitness score
+:param individual: one chromosome
+:return: regularization score. percentage of feature not exist in feature list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_score">
+<span class="sig-name descname"><span class="pre">make_score</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.make_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_score" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_method_accuaracy">
+<span class="sig-name descname"><span class="pre">fitness_method_accuaracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.fitness_method_accuaracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_method_accuaracy" title="Permalink to this definition"></a></dt>
+<dd><p>accuracy term for fitness score
+:param individual: one chromosome
+:return: accuracy of model for chromosome</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_function">
+<span class="sig-name descname"><span class="pre">fitness_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.fitness_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_function" title="Permalink to this definition"></a></dt>
+<dd><p>fitness function for chromosome
+:param individual: one chromosome
+:return: fitness score of chromosome</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_population">
+<span class="sig-name descname"><span class="pre">fitness_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.fitness_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.fitness_population" title="Permalink to this definition"></a></dt>
+<dd><p>find fitness score for chromosomes in population
+:return: list of fitness score of population</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_elites">
+<span class="sig-name descname"><span class="pre">find_elites</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.find_elites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_elites" title="Permalink to this definition"></a></dt>
+<dd><p>find elite members
+:return: list of elite chromosomes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.crossover">
+<span class="sig-name descname"><span class="pre">crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parents2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.crossover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.crossover" title="Permalink to this definition"></a></dt>
+<dd><p>one point crossover
+:param parents1: chromosome as paraent1
+:param parents2: chromosome as paraent2
+:return: two children by one point crossover</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.maturation">
+<span class="sig-name descname"><span class="pre">maturation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.maturation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.maturation" title="Permalink to this definition"></a></dt>
+<dd><p>maturation one chromosome by mut_rate
+:param child: chromosome
+:return: maturation one chromosome</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.selection">
+<span class="sig-name descname"><span class="pre">selection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.selection" title="Permalink to this definition"></a></dt>
+<dd><p>find best chromosome in tournment for being parent
+:return: best chromosome in tournment for being parent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_child">
+<span class="sig-name descname"><span class="pre">make_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.make_child"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_child" title="Permalink to this definition"></a></dt>
+<dd><p>build two child from two parants by one point crossover
+:return: list of two child</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_new_generation">
+<span class="sig-name descname"><span class="pre">make_new_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.make_new_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.make_new_generation" title="Permalink to this definition"></a></dt>
+<dd><p>build new generation and find best feature set by generation
+:param verbose: status that show result of each generation (default True)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_best_result_population">
+<span class="sig-name descname"><span class="pre">find_best_result_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.find_best_result_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.find_best_result_population" title="Permalink to this definition"></a></dt>
+<dd><p>find best result of generation and set feature set
+:param initial:
+:param verbose:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeneticAlgorithmFeaturesSelection/GA.html#FeatureSelection.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GeneticAlgorithmFeaturesSelection.GA.FeatureSelection.run" title="Permalink to this definition"></a></dt>
+<dd><p>run process
+:param verbose:
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ali Sharifi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
